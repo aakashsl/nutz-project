@@ -1,0 +1,31 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search by BIB Number</title>
+    <link rel="stylesheet" type="text/css" href="C:\Users\prath\PycharmProjects\pythonProject4\static\styles.css">
+   
+</head>
+<body>
+    <div class="container">
+        <h1>Search by BIB number</h1>
+        <div class="search-container">
+            <form method="post" action="/search">
+                <label for="bib-input"></label><input type="text" name="bib_number" placeholder="Enter BIB no..." id="bib-input">
+                <button type="submit" id="search-button">SEARCH</button>
+            </form>
+        </div>
+        {% if message %}
+            <p>{{ message }}</p>
+        {% endif %}
+        <div class="image-gallery">
+            {% for img in images %}
+                <img src="{ img }" alt="Image">
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
