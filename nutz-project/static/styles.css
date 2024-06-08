@@ -6,7 +6,6 @@ body {
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    height: 100vh;
     margin: 0;
 }
 
@@ -50,6 +49,8 @@ h1 {
 
 .image-gallery {
     display: grid;
+    max-height: 400px;
+    overflow-y: auto;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 10px;
     max-width: 900px;
@@ -59,4 +60,23 @@ h1 {
     width: 100%;
     height: auto;
     border-radius: 10px;
+}
+
+.search-container{
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.down{
+    margin: 5px;
+    padding: 10px;
+    font-size: 20px;
+    background-color: green;
+    border: none;
+    color: white;
+    border-radius: 10px;
+}
+.highlighted {
+    border: 5px solid rgb(52, 186, 130);
 }
