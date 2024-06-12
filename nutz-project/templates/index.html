@@ -24,9 +24,11 @@
             <p>{{ message }}</p>
         {% endif %}
         <div class="image-gallery">
-            {% for img in images %}
-                <img src="{ img }" alt="Image" class="gallery-image">
-            {% endfor %}
+
+            <img src="https://www.nediveil.in/static/images/nvlogo.png" alt="Image" class="gallery-image">
+            <img src="https://www.nediveil.in/static/images/logo-design.png" alt="Image" class="gallery-image">
+            <img src="https://www.nediveil.in/static/images/mobile-icon.png" alt="Image" class="gallery-image">
+            
         </div>
     </div>
 
@@ -50,6 +52,15 @@
                 });
             });
 
+            async function fetchImage(url) {
+                const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+                const response = await fetch(proxyUrl + url);
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch image from ${url}`);
+                }
+                return response.blob();
+            }
+
             downloadButton.addEventListener('click', async function (e) {
                 e.preventDefault();
                 if (selectedImages.length > 0) {
@@ -57,10 +68,13 @@
                     const imgFolder = zip.folder('images');
 
                     for (const imgUrl of selectedImages) {
-                        const response = await fetch(imgUrl);
-                        const blob = await response.blob();
-                        const filename = imgUrl.split('/').pop();
-                        imgFolder.file(filename, blob);
+                        try {
+                            const blob = await fetchImage(imgUrl);
+                            const filename = imgUrl.split('/').pop();
+                            imgFolder.file(filename, blob);
+                        } catch (error) {
+                            console.error(`Error fetching image: ${error}`);
+                        }
                     }
 
                     zip.generateAsync({ type: 'blob' }).then(function (content) {
@@ -75,5 +89,6 @@
             });
         });
     </script>
+
 </body>
 </html>
