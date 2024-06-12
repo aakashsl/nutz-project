@@ -53,8 +53,8 @@
             });
 
             async function fetchImage(url) {
-                const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-                const response = await fetch(proxyUrl + url);
+                const proxyUrl = `http://127.0.0.1:5000/proxy?url=${encodeURIComponent(url)}`;
+                const response = await fetch(proxyUrl);
                 if (!response.ok) {
                     throw new Error(`Failed to fetch image from ${url}`);
                 }
@@ -89,6 +89,5 @@
             });
         });
     </script>
-
 </body>
 </html>
