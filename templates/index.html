@@ -6,37 +6,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Search by BIB Number</title>
     <link rel="stylesheet" type="text/css" href="/static/styles.css">
-   
+
 </head>
+
 <body>
     <div class="container">
         <h1>Search by BIB number</h1>
         <div class="search-container">
             <form method="post" action="/search">
-                <label for="bib-input"></label><input type="text" name="bib_number" placeholder="Enter BIB no..." id="bib-input">
+                <label for="bib-input"></label><input type="text" name="bib_number" placeholder="Enter BIB no..."
+                    id="bib-input">
                 <button type="submit" id="search-button">SEARCH</button>
             </form>
             <form action="#">
-                <button class="down"  id="download-button" disabled>Download</button>
+                <input class="down" type="button" id="download-button" value="Download">
             </form>
         </div>
         {% if message %}
-            <p>{{ message }}</p>
+        <p>{{ message }}</p>
         {% endif %}
         <div class="image-gallery">
-
-            <img src="https://www.nediveil.in/static/images/nvlogo.png" alt="Image" class="gallery-image">
-            <img src="https://www.nediveil.in/static/images/logo-design.png" alt="Image" class="gallery-image">
-            <img src="https://www.nediveil.in/static/images/mobile-icon.png" alt="Image" class="gallery-image">
-            
+            {% for img in images %}
+            <img src="{ img }" alt="Image" class="gallery-image">
+            {% endfor %}
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.6.0/jszip.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const images = document.querySelectorAll('.gallery-image');
             const downloadButton = document.getElementById('download-button');
+
             let selectedImages = [];
 
             images.forEach(image => {
@@ -48,46 +48,51 @@
                         this.classList.add('highlighted');
                         selectedImages.push(this.src);
                     }
-                    downloadButton.disabled = selectedImages.length === 0;
                 });
             });
 
-            async function fetchImage(url) {
-                const proxyUrl = `http://127.0.0.1:5000/proxy?url=${encodeURIComponent(url)}`;
-                const response = await fetch(proxyUrl);
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch image from ${url}`);
+            downloadButton.addEventListener('click', function () {
+                if (selectedImages.length === 0) {
+                    alert("Please select images to download.");
+                    return;
                 }
-                return response.blob();
-            }
 
-            downloadButton.addEventListener('click', async function (e) {
-                e.preventDefault();
-                if (selectedImages.length > 0) {
-                    const zip = new JSZip();
-                    const imgFolder = zip.folder('images');
-
-                    for (const imgUrl of selectedImages) {
-                        try {
-                            const blob = await fetchImage(imgUrl);
-                            const filename = imgUrl.split('/').pop();
-                            imgFolder.file(filename, blob);
-                        } catch (error) {
-                            console.error(`Error fetching image: ${error}`);
+                fetch('/download', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ urls: selectedImages })
+                })
+                    .then(response => {
+                        if (selectedImages.length === 1) {
+                            return response.blob().then(blob => {
+                                const url = window.URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.style.display = 'none';
+                                a.href = url;
+                                a.download = 'image.png';
+                                document.body.appendChild(a);
+                                a.click();
+                                window.URL.revokeObjectURL(url);
+                            });
+                        } else {
+                            return response.blob().then(blob => {
+                                const url = window.URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.style.display = 'none';
+                                a.href = url;
+                                a.download = 'images.zip';
+                                document.body.appendChild(a);
+                                a.click();
+                                window.URL.revokeObjectURL(url);
+                            });
                         }
-                    }
-
-                    zip.generateAsync({ type: 'blob' }).then(function (content) {
-                        const a = document.createElement('a');
-                        a.href = URL.createObjectURL(content);
-                        a.download = 'images.zip';
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                    });
-                }
+                    })
+                    .catch(error => console.error('Error:', error));
             });
         });
     </script>
 </body>
+
 </html>
